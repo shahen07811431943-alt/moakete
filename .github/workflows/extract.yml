@@ -1,1 +1,29 @@
+name: Extract ZIP
 
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract
+        run: |
+          unzip -o moakete.zip -d extracted/
+          if [ $(ls extracted/ | wc -l) -eq 1 ] && [ -d "extracted/$(ls extracted/)" ]; then
+            mv extracted/*/* ./
+          else
+            cp -r extracted/* ./
+          fi
+          rm -rf extracted/ moakete.zip
+      - name: Commit
+        run: |
+          git config user.email "bot@github.com"
+          git config user.name "Bot"
+          git add -A
+          git commit -m "استخراج المشروع" || echo "no changes"
+          git push
